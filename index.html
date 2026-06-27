@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣統一發票對獎與自動查詢器</title>
+    <meta name="description" content="自動同步財政部最新中獎號碼，提供快速對獎、末三碼快速篩選、歷史紀錄與中獎發票管理功能。">
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <header class="app-header">
+        <div class="header-bg-gradient"></div>
+        <div class="container">
+            <div class="logo">
+                <i class="fa-solid fa-ticket logo-icon"></i>
+                <span class="logo-text">TW INVOICE</span>
+            </div>
+            <h1 id="app-title">統一發票中獎號碼快速對獎器</h1>
+            <p class="subtitle">自動同步財政部最新中獎號碼，支援末三碼快速對獎與離線紀錄</p>
+        </div>
+    </header>
+
+    <main class="container main-content animate-fade-in">
+        <!-- 狀態工具列 -->
+        <div class="status-download-bar">
+            <div class="status-info">
+                <span class="pulse-indicator"></span>
+                <span class="status-text">當前對獎期別：<strong id="data-period">載入中...</strong></span>
+            </div>
+            <div class="update-time-box">
+                <span class="update-text">資料更新時間：<span id="data-update-time">--</span></span>
+            </div>
+        </div>
+
+        <div class="workspace-grid">
+            <!-- 左欄：對獎操作 -->
+            <div class="left-panel">
+                <!-- 快速對獎卡片 -->
+                <section class="card input-card">
+                    <h2 class="card-title"><i class="fa-solid fa-calculator text-accent"></i> 輸入發票號碼</h2>
+                    
+                    <div class="input-mode-toggle">
+                        <button class="toggle-btn active" id="btn-mode-rapid" data-mode="rapid">末 3 碼快速對獎</button>
+                        <button class="toggle-btn" id="btn-mode-full" data-mode="full">8 位數完全對獎</button>
+                    </div>
+
+                    <!-- 末三碼對獎模式 -->
+                    <div class="checker-section active" id="section-rapid">
+                        <p class="input-instruction">請輸入發票「末 3 碼」進行第一輪快速篩選：</p>
+                        <div class="number-input-wrapper">
+                            <input type="text" id="input-rapid" maxlength="3" placeholder="請輸入 3 位數字" autocomplete="off" inputmode="numeric">
+                        </div>
+                        <div class="rapid-hint-box" id="rapid-result-box">
+                            <span class="result-message" id="rapid-result-msg">請輸入號碼進行對獎</span>
+                        </div>
+                    </div>
+
+                    <!-- 8位數對獎模式 -->
+                    <div class="checker-section" id="section-full">
+                        <p class="input-instruction">請輸入發票完整「8 位數」號碼進行精確對獎：</p>
+                        <div class="number-input-wrapper">
+                            <input type="text" id="input-full" maxlength="8" placeholder="請輸入 8 位數字" autocomplete="off" inputmode="numeric">
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" id="btn-check-full"><i class="fa-solid fa-magnifying-glass"></i> 精確對獎</button>
+                            <button class="btn btn-secondary" id="btn-clear-full">清除重填</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 對獎結果顯示卡片 -->
+                <section class="card result-card" id="card-result-display">
+                    <h2 class="card-title"><i class="fa-solid fa-trophy text-accent"></i> 對獎結果</h2>
+                    <div class="result-display-container">
+                        <div class="result-icon-box" id="result-status-icon">
+                            <i class="fa-solid fa-receipt"></i>
+                        </div>
+                        <div class="result-details">
+                            <h3 class="result-status-title" id="result-title">等待輸入</h3>
+                            <p class="result-desc" id="result-desc">請在上方輸入框輸入號碼</p>
+                            <div class="prize-badge" id="result-prize-badge" style="display: none;">0 元</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- 右欄：中獎號碼與歷史紀錄 -->
+            <div class="right-panel">
+                <!-- 中獎號碼卡片 -->
+                <section class="card winning-numbers-card">
+                    <h2 class="card-title"><i class="fa-solid fa-list-ol text-accent"></i> 中獎號碼單</h2>
+                    <div class="numbers-list">
+                        <div class="number-row">
+                            <div class="award-label">特別獎 (1000萬)</div>
+                            <div class="award-val val-red" id="num-super">--------</div>
+                            <div class="award-desc">同期統一發票收執聯8位數號碼與特別獎號碼相同者</div>
+                        </div>
+                        <div class="number-row">
+                            <div class="award-label">特獎 (200萬)</div>
+                            <div class="award-val val-red" id="num-grand">--------</div>
+                            <div class="award-desc">同期統一發票收執聯8位數號碼與特獎號碼相同者</div>
+                        </div>
+                        <div class="number-row">
+                            <div class="award-label">頭獎 (20萬)</div>
+                            <div class="award-vals" id="num-first-container">
+                                <div class="award-val">--------</div>
+                                <div class="award-val">--------</div>
+                                <div class="award-val">--------</div>
+                            </div>
+                            <div class="award-desc">同期統一發票收執聯8位數號碼與頭獎任一號碼相同者</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 歷史對獎紀錄 -->
+                <section class="card history-card">
+                    <div class="history-header">
+                        <h2 class="card-title"><i class="fa-solid fa-history text-accent"></i> 歷史對獎紀錄</h2>
+                        <button class="btn-sm btn-danger-text" id="btn-clear-history"><i class="fa-solid fa-trash-can"></i> 清除</button>
+                    </div>
+                    <div class="history-summary">
+                        <span class="summary-item">已檢查：<strong id="history-total-count">0</strong> 張</span>
+                        <span class="summary-item">中獎金額：<strong class="text-accent" id="history-win-amount">0</strong> 元</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>號碼</th>
+                                    <th>狀態/獎項</th>
+                                    <th class="text-right">金額</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-list-body">
+                                <tr>
+                                    <td colspan="3" class="text-center" style="color: var(--text-muted);">尚無對獎紀錄</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- 獎項獎金對照說明 -->
+        <section class="card help-card">
+            <h2 class="card-title"><i class="fa-solid fa-circle-info text-accent"></i> 統一發票獎金對照說明</h2>
+            <div class="help-grid">
+                <div class="help-box">
+                    <span class="help-label">特別獎 / 特獎</span>
+                    <span class="help-value">1,000 萬元 / 200 萬元</span>
+                    <span class="help-desc">需發票 8 位數字與中獎號碼完全相同</span>
+                </div>
+                <div class="help-box">
+                    <span class="help-label">頭獎 / 二獎</span>
+                    <span class="help-value">20 萬元 / 4 萬元</span>
+                    <span class="help-desc">頭獎 8 位同；二獎末 7 位與頭獎相同</span>
+                </div>
+                <div class="help-box">
+                    <span class="help-label">三獎 / 四獎</span>
+                    <span class="help-value">1 萬元 / 4,000 元</span>
+                    <span class="help-desc">三獎末 6 位同；四獎末 5 位與頭獎相同</span>
+                </div>
+                <div class="help-box">
+                    <span class="help-label">五獎 / 六獎</span>
+                    <span class="help-value">1,000 元 / 200 元</span>
+                    <span class="help-desc">五獎末 4 位同；六獎末 3 位與頭獎相同</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <div class="container">
+            <p>© 2026 TW Invoice Checker. 專為台灣人設計的極速中獎發票快速對獎看板。</p>
+            <p class="github-badge">資料自動定時爬取託管於 GitHub Pages | 100% 離線可用且無廣告</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
