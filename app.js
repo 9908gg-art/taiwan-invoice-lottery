@@ -1,9 +1,10 @@
 /* ==========================================================================
-   統一發票對獎器 - 互動與對獎邏輯 (app.js)
+   統一發票對獎器 - 互動、對獎與相機掃描邏輯 (app.js)
    ========================================================================== */
 
 let winningData = null;
 let historyRecords = [];
+let html5Qrcode = null;
 
 // 音效播放器 (Synthesized Arcade Audio using Web Audio API)
 const audioSynth = {
@@ -195,30 +196,41 @@ async function loadWinningNumbers() {
  * 切換對獎模式按鈕
  */
 function initModeToggles() {
+    const btnScan = document.getElementById("btn-mode-scan");
     const btnRapid = document.getElementById("btn-mode-rapid");
     const btnFull = document.getElementById("btn-mode-full");
+    
+    const secScan = document.getElementById("section-scan");
     const secRapid = document.getElementById("section-rapid");
     const secFull = document.getElementById("section-full");
 
+    btnScan.addEventListener("click", () => {
+        setModeActive(btnScan, secScan);
+        resetResultDisplay();
+    });
+
     btnRapid.addEventListener("click", () => {
-        btnRapid.classList.add("active");
-        btnFull.classList.remove("active");
-        secRapid.classList.add("active");
-        secFull.classList.remove("active");
+        setModeActive(btnRapid, secRapid);
+        stopScanner();
         resetResultDisplay();
     });
 
     btnFull.addEventListener("click", () => {
-        btnFull.classList.add("active");
-        btnRapid.classList.remove("active");
-        secFull.classList.add("active");
-        secRapid.classList.remove("active");
+        setModeActive(btnFull, secFull);
+        stopScanner();
         resetResultDisplay();
     });
+
+    function setModeActive(activeBtn, activeSec) {
+        [btnScan, btnRapid, btnFull].forEach(btn => btn.classList.remove("active"));
+        [secScan, secRapid, secFull].forEach(sec => sec.classList.remove("active"));
+        activeBtn.classList.add("active");
+        activeSec.classList.add("active");
+    }
 }
 
 /**
- * 初始化對獎邏輯
+ * 初始化對獎邏輯與相機掃描
  */
 function initChecker() {
     const inputRapid = document.getElementById("input-rapid");
@@ -226,10 +238,16 @@ function initChecker() {
     const btnCheckFull = document.getElementById("btn-check-full");
     const btnClearFull = document.getElementById("btn-clear-full");
     const btnClearHistory = document.getElementById("btn-clear-history");
+    
+    const btnStartScan = document.getElementById("btn-start-scan");
+    const btnStopScan = document.getElementById("btn-stop-scan");
+
+    // 相機啟動與停止監聽
+    btnStartScan.addEventListener("click", () => startScanner());
+    btnStopScan.addEventListener("click", () => stopScanner());
 
     // 末三碼快速輸入監聽
     inputRapid.addEventListener("input", () => {
-        // 清理非數字字元
         inputRapid.value = inputRapid.value.replace(/\D/g, "");
         const val = inputRapid.value;
         const resultBox = document.getElementById("rapid-result-box");
@@ -288,6 +306,98 @@ function initChecker() {
 }
 
 /**
+ * 啟動相機 QR Code 掃描器
+ */
+function startScanner() {
+    const btnStart = document.getElementById("btn-start-scan");
+    const btnStop = document.getElementById("btn-stop-scan");
+    const scanBox = document.getElementById("scan-result-box");
+    const scanMsg = document.getElementById("scan-result-msg");
+
+    scanBox.className = "rapid-hint-box";
+    scanMsg.textContent = "正在啟動相機鏡頭...";
+
+    if (!html5Qrcode) {
+        html5Qrcode = new Html5Qrcode("reader");
+    }
+
+    const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+
+    html5Qrcode.start(
+        { facingMode: "environment" }, // 使用手機後置鏡頭
+        config,
+        (decodedText) => {
+            // 掃描成功回呼
+            handleScannedText(decodedText);
+        },
+        (errorMessage) => {
+            // 掃描中 (每幀沒掃到會輸出錯誤，這裡不打印以維持流暢)
+        }
+    ).then(() => {
+        btnStart.style.display = "none";
+        btnStop.style.display = "inline-flex";
+        scanMsg.innerHTML = `<span style="color: var(--color-accent);"><i class="fa-solid fa-spinner fa-spin"></i> 鏡頭對焦中...請掃描左側 QR Code</span>`;
+    }).catch(err => {
+        console.error("相機啟動失敗：", err);
+        scanMsg.innerHTML = `<span style="color: var(--color-red);"><i class="fa-solid fa-triangle-exclamation"></i> 相機開啟失敗，請確認是否給予相機權限</span>`;
+    });
+}
+
+/**
+ * 關閉相機
+ */
+function stopScanner() {
+    const btnStart = document.getElementById("btn-start-scan");
+    const btnStop = document.getElementById("btn-stop-scan");
+    const scanMsg = document.getElementById("scan-result-msg");
+
+    if (html5Qrcode && html5Qrcode.isScanning) {
+        html5Qrcode.stop().then(() => {
+            btnStart.style.display = "inline-flex";
+            btnStop.style.display = "none";
+            scanMsg.textContent = "相機已關閉";
+        }).catch(err => {
+            console.error("停止相機失敗：", err);
+        });
+    }
+}
+
+/**
+ * 解析發票 QR Code 文字
+ * 台灣電子發票格式例如: AB123456781040715... (前兩碼英文 + 8碼數字 + 7碼民國日期)
+ */
+function handleScannedText(text) {
+    const scanBox = document.getElementById("scan-result-box");
+    const scanMsg = document.getElementById("scan-result-msg");
+
+    // 正則匹配開頭為 2 位大寫英文字母 + 8 位數字 (例如: AJ19531471)
+    const invoiceRegex = /^([A-Z]{2})(\d{8})/;
+    const match = text.match(invoiceRegex);
+
+    if (match) {
+        const fullInvoiceNumber = match[1] + match[2];
+        const invoiceDigits = match[2]; // 8位數字部分
+        
+        // 手機震動反饋 (200毫秒)
+        if (navigator.vibrate) {
+            navigator.vibrate(200);
+        }
+
+        // 停止掃描避免重複觸發
+        stopScanner();
+
+        scanBox.className = "rapid-hint-box match";
+        scanMsg.innerHTML = `<span style="color: var(--color-green); font-weight:700;">✅ 成功掃入發票：${fullInvoiceNumber}</span>`;
+
+        // 執行完全對獎
+        checkFullNumber(invoiceDigits, fullInvoiceNumber);
+    } else {
+        // 這可能不是發票 QR Code，維持掃描狀態但提示使用者
+        scanMsg.innerHTML = `<span style="color: #fbbf24;"><i class="fa-solid fa-triangle-exclamation"></i> 偵測到條碼，但格式不符（請掃描發票左側的 QR Code）</span>`;
+    }
+}
+
+/**
  * 重置對獎結果顯示
  */
 function resetResultDisplay() {
@@ -298,8 +408,8 @@ function resetResultDisplay() {
 
     iconBox.className = "result-icon-box";
     iconBox.innerHTML = `<i class="fa-solid fa-receipt"></i>`;
-    title.textContent = "等待輸入";
-    desc.textContent = "請在上方輸入框輸入號碼";
+    title.textContent = "等待對獎";
+    desc.textContent = "請選擇上方相機掃描或手動對獎";
     badge.style.display = "none";
 }
 
@@ -312,7 +422,6 @@ function checkRapidNumber(threeDigits) {
     const resultBox = document.getElementById("rapid-result-box");
     const resultMsg = document.getElementById("rapid-result-msg");
 
-    // 取得所有獎項的末三碼
     const superLast3 = winningData.super_prize.slice(-3);
     const grandLast3 = winningData.grand_prize.slice(-3);
     const firstLast3List = winningData.first_prizes.map(num => num.slice(-3));
@@ -335,35 +444,34 @@ function checkRapidNumber(threeDigits) {
     }
 
     if (matched) {
-        // 匹配成功：發出匹配提示音、變更UI樣式
         audioSynth.playMatch();
         resultBox.className = "rapid-hint-box match";
-        resultMsg.innerHTML = `<span style="color: var(--color-red); font-weight: 700;">🎉 ${matchType} 可能中大獎！請按切換為「8位數完全對獎」驗證！</span>`;
+        resultMsg.innerHTML = `<span style="color: var(--color-red); font-weight: 700;">🎉 ${matchType} 可能中大獎！請按切換為「8碼精確輸入」驗證！</span>`;
 
-        // 渲染結果欄
         updateResultDisplay(true, "可能中獎！", `末 3 碼「${threeDigits}」與中獎號碼相符，請輸入完整 8 位數以確認最終獎項與金額。`, null);
     } else {
-        // 匹配失敗：發出普通低沉嗶聲、記為未中獎並存入歷史紀錄
         audioSynth.playLose();
         resultBox.className = "rapid-hint-box no-match";
         resultMsg.textContent = "❌ 末 3 碼不符，此張發票未中獎";
         
         updateResultDisplay(false, "未中獎", `末 3 碼「${threeDigits}」不相符。`, 0);
         
-        // 寫入歷史紀錄 (末三碼篩選快速標記)
         addHistoryRecord(threeDigits + " (末3碼)", "未中獎", 0);
     }
 }
 
 /**
  * 進行完整8位數精確對獎
+ * @param {string} eightDigits 8位數字部分
+ * @param {string} optionalFullName 發票完整名稱(含英文前綴)，可用於歷史紀錄
  */
-function checkFullNumber(eightDigits) {
+function checkFullNumber(eightDigits, optionalFullName = "") {
     if (!winningData) return;
 
     let won = false;
     let prizeName = "未中獎";
     let amount = 0;
+    const displayName = optionalFullName || eightDigits;
 
     // 1. 特別獎 (1000萬)
     if (eightDigits === winningData.super_prize) {
@@ -399,16 +507,14 @@ function checkFullNumber(eightDigits) {
     }
 
     if (won) {
-        // 中獎：爆炸撒花、音效、UI高亮
         audioSynth.playWin();
         confetti.start();
-        updateResultDisplay(true, `中獎了！恭喜獲得【${prizeName}】`, `發票號碼：${eightDigits}，獎金金額為 NT$ ${amount.toLocaleString()} 元。`, amount);
-        addHistoryRecord(eightDigits, `${prizeName}`, amount);
+        updateResultDisplay(true, `中獎了！恭喜獲得【${prizeName}】`, `發票號碼：${displayName}，獎金金額為 NT$ ${amount.toLocaleString()} 元。`, amount);
+        addHistoryRecord(displayName, `${prizeName}`, amount);
     } else {
-        // 未中獎：低沉嗶聲
         audioSynth.playLose();
-        updateResultDisplay(false, "未中獎", `發票號碼：${eightDigits}。再接再厲！`, 0);
-        addHistoryRecord(eightDigits, "未中獎", 0);
+        updateResultDisplay(false, "未中獎", `發票號碼：${displayName}。再接再厲！`, 0);
+        addHistoryRecord(displayName, "未中獎", 0);
     }
 }
 
@@ -473,7 +579,6 @@ function addHistoryRecord(number, status, prizeAmount) {
         time: new Date().toLocaleTimeString()
     });
 
-    // 限制最大紀錄數為 30 筆
     if (historyRecords.length > 30) {
         historyRecords.pop();
     }

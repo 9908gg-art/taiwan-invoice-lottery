@@ -632,3 +632,48 @@ body {
         grid-template-columns: 1fr 1fr;
     }
 }
+
+/* 相機掃描框設計 */
+.scanner-wrapper {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto 10px;
+    border-radius: var(--radius-md);
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+    background: rgba(0,0,0,0.4);
+    position: relative;
+    box-shadow: var(--shadow-sm);
+}
+
+/* 隱藏 html5-qrcode 套件自帶的醜陋 UI 按鈕與訊息 */
+#reader {
+    border: none !important;
+}
+
+#reader img {
+    display: none !important;
+}
+
+#reader select,
+#reader button {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    padding: 6px 12px !important;
+    border-radius: var(--radius-sm) !important;
+    font-size: 11px !important;
+    cursor: pointer !important;
+}
+
+#reader__dashboard_section_csr button {
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover)) !important;
+    color: #0f172a !important;
+    font-weight: bold !important;
+}
+
+#reader__status_span {
+    font-size: 11px !important;
+    color: var(--text-secondary) !important;
+}
+

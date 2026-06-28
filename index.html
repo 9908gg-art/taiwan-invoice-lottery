@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>台灣統一發票對獎與自動查詢器</title>
-    <meta name="description" content="自動同步財政部最新中獎號碼，提供快速對獎、末三碼快速篩選、歷史紀錄與中獎發票管理功能。">
+    <meta name="description" content="自動同步財政部最新中獎號碼，提供快速對獎、末三碼快速篩選、相機 QR Code 掃描對獎、歷史紀錄與中獎發票管理功能。">
     <!-- Google Fonts & FontAwesome -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- HTML5 QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,8 +23,8 @@
                 <i class="fa-solid fa-ticket logo-icon"></i>
                 <span class="logo-text">TW INVOICE</span>
             </div>
-            <h1 id="app-title">統一發票中獎號碼快速對獎器</h1>
-            <p class="subtitle">自動同步財政部最新中獎號碼，支援末三碼快速對獎與離線紀錄</p>
+            <h1 id="app-title">統一發票智慧掃描與對獎器</h1>
+            <p class="subtitle">自動同步財政部中獎號碼，支援手機鏡頭掃描發票 QR Code 一秒對獎</p>
         </div>
     </header>
 
@@ -43,15 +45,34 @@
             <div class="left-panel">
                 <!-- 快速對獎卡片 -->
                 <section class="card input-card">
-                    <h2 class="card-title"><i class="fa-solid fa-calculator text-accent"></i> 輸入發票號碼</h2>
+                    <h2 class="card-title"><i class="fa-solid fa-calculator text-accent"></i> 選擇對獎方式</h2>
                     
                     <div class="input-mode-toggle">
-                        <button class="toggle-btn active" id="btn-mode-rapid" data-mode="rapid">末 3 碼快速對獎</button>
-                        <button class="toggle-btn" id="btn-mode-full" data-mode="full">8 位數完全對獎</button>
+                        <button class="toggle-btn active" id="btn-mode-scan" data-mode="scan"><i class="fa-solid fa-camera"></i> 相機掃描</button>
+                        <button class="toggle-btn" id="btn-mode-rapid" data-mode="rapid">末 3 碼手動</button>
+                        <button class="toggle-btn" id="btn-mode-full" data-mode="full">8 碼精確輸入</button>
+                    </div>
+
+                    <!-- 相機掃描對獎模式 -->
+                    <div class="checker-section active" id="section-scan">
+                        <p class="input-instruction">請將電子發票「左側的 QR Code」對準相機畫面進行對獎：</p>
+                        
+                        <div class="scanner-wrapper">
+                            <div id="reader"></div>
+                        </div>
+
+                        <div class="action-buttons" style="margin-top: 10px; display: flex; justify-content: center; gap: 8px;">
+                            <button class="btn btn-primary" id="btn-start-scan" style="width: auto; padding: 8px 20px;"><i class="fa-solid fa-video"></i> 開啟相機掃描</button>
+                            <button class="btn btn-secondary" id="btn-stop-scan" style="display: none; width: auto; padding: 8px 20px;"><i class="fa-solid fa-video-slash"></i> 關閉相機</button>
+                        </div>
+
+                        <div class="rapid-hint-box" id="scan-result-box" style="margin-top: 12px;">
+                            <span class="result-message" id="scan-result-msg">點擊上方按鈕開啟相機</span>
+                        </div>
                     </div>
 
                     <!-- 末三碼對獎模式 -->
-                    <div class="checker-section active" id="section-rapid">
+                    <div class="checker-section" id="section-rapid">
                         <p class="input-instruction">請輸入發票「末 3 碼」進行第一輪快速篩選：</p>
                         <div class="number-input-wrapper">
                             <input type="text" id="input-rapid" maxlength="3" placeholder="請輸入 3 位數字" autocomplete="off" inputmode="numeric">
@@ -82,8 +103,8 @@
                             <i class="fa-solid fa-receipt"></i>
                         </div>
                         <div class="result-details">
-                            <h3 class="result-status-title" id="result-title">等待輸入</h3>
-                            <p class="result-desc" id="result-desc">請在上方輸入框輸入號碼</p>
+                            <h3 class="result-status-title" id="result-title">等待對獎</h3>
+                            <p class="result-desc" id="result-desc">請選擇上方相機掃描或手動對獎</p>
                             <div class="prize-badge" id="result-prize-badge" style="display: none;">0 元</div>
                         </div>
                     </div>
@@ -178,7 +199,7 @@
 
     <footer class="app-footer">
         <div class="container">
-            <p>© 2026 TW Invoice Checker. 專為台灣人設計的極速中獎發票快速對獎看板。</p>
+            <p>© 2026 TW Invoice Checker. 專為台灣人設計的極速智慧掃描與手動對獎看板。</p>
             <p class="github-badge">資料自動定時爬取託管於 GitHub Pages | 100% 離線可用且無廣告</p>
         </div>
     </footer>
