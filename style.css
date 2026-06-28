@@ -82,7 +82,7 @@ body {
 /* 頁首 Header */
 .app-header {
     position: relative;
-    padding: 24px 0 16px;
+    padding: 12px 0 8px;
     text-align: center;
     background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.15) 0%, transparent 60%);
     border-bottom: 1px solid var(--border-color);
@@ -101,9 +101,9 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 4px;
     background: rgba(56, 189, 248, 0.05);
-    padding: 4px 12px;
+    padding: 2px 8px;
     border-radius: 50px;
     border: 1px solid var(--border-color);
 }
@@ -122,9 +122,9 @@ body {
 }
 
 .app-header h1 {
-    font-size: 26px;
+    font-size: 18px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
     background: linear-gradient(135deg, #ffffff 40%, var(--text-secondary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -133,7 +133,7 @@ body {
 
 .subtitle {
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 11px;
     max-width: 550px;
     margin: 0 auto;
 }
@@ -141,10 +141,10 @@ body {
 /* 主版面佈局 */
 .main-content {
     flex: 1;
-    padding: 16px 0 32px;
+    padding: 8px 0 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 8px;
 }
 
 /* 狀態工具列 */
@@ -152,7 +152,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 16px;
+    padding: 4px 10px;
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
@@ -191,7 +191,7 @@ body {
 }
 
 .status-text {
-    font-size: 13px;
+    font-size: 10px;
     color: var(--text-secondary);
 }
 
@@ -200,14 +200,14 @@ body {
 }
 
 .update-time-box {
-    font-size: 12px;
+    font-size: 9px;
     color: var(--text-hint);
 }
 
 .workspace-grid {
     display: grid;
     grid-template-columns: 1.2fr 1fr;
-    gap: 16px;
+    gap: 8px;
 }
 
 /* 卡片樣式 */
@@ -217,10 +217,10 @@ body {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 14px 18px;
+    padding: 8px 12px;
     box-shadow: var(--shadow-sm);
     transition: var(--transition-smooth);
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
 .card:last-child {
@@ -233,9 +233,9 @@ body {
 }
 
 .card-title {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -254,15 +254,15 @@ body {
     padding: 3px;
     border-radius: var(--radius-sm);
     gap: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 }
 
 .toggle-btn {
     background: transparent;
     color: var(--text-secondary);
     border: none;
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
     font-weight: 600;
     border-radius: var(--radius-sm);
     cursor: pointer;
@@ -290,16 +290,16 @@ body {
 }
 
 .input-instruction {
-    font-size: 12px;
+    font-size: 10px;
     color: var(--text-secondary);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .number-input-wrapper {
     position: relative;
     display: flex;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 }
 
 .number-input-wrapper input {
@@ -307,9 +307,9 @@ body {
     background-color: rgba(6, 4, 10, 0.6);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    padding: 10px 14px;
+    padding: 6px 10px;
     color: var(--text-primary);
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 700;
     letter-spacing: 2px;
     text-align: center;
@@ -335,7 +335,7 @@ body {
     background: rgba(15, 23, 42, 0.4);
     border: 1px solid rgba(255, 255, 255, 0.03);
     border-radius: var(--radius-sm);
-    padding: 10px;
+    padding: 6px;
     text-align: center;
     transition: var(--transition-fast);
 }
@@ -363,9 +363,9 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 8px 16px;
+    padding: 4px 8px;
     border-radius: var(--radius-sm);
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
@@ -438,13 +438,13 @@ body {
 }
 
 .result-status-title {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--text-primary);
 }
 
 .result-desc {
-    font-size: 12px;
+    font-size: 10px;
     color: var(--text-secondary);
 }
 
@@ -453,8 +453,8 @@ body {
     background: var(--color-red);
     color: white;
     font-weight: 700;
-    font-size: 12px;
-    padding: 2px 8px;
+    font-size: 11px;
+    padding: 1px 6px;
     border-radius: 4px;
     margin-top: 4px;
     font-family: 'Outfit', sans-serif;
@@ -465,26 +465,26 @@ body {
 .numbers-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
 }
 
 .number-row {
     background: rgba(255, 255, 255, 0.01);
     border: 1px solid rgba(255, 255, 255, 0.03);
     border-radius: var(--radius-sm);
-    padding: 8px 12px;
+    padding: 4px 8px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
 }
 
 .award-label {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-secondary);
 }
 
 .award-val {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
     font-family: 'Outfit', sans-serif;
     letter-spacing: 1px;
@@ -501,7 +501,7 @@ body {
 }
 
 .award-desc {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--text-hint);
     line-height: 1.3;
 }
@@ -511,7 +511,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .history-header .card-title {
@@ -534,12 +534,12 @@ body {
 .history-summary {
     display: flex;
     gap: 16px;
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-secondary);
     background: rgba(15, 23, 42, 0.4);
-    padding: 6px 12px;
+    padding: 4px 8px;
     border-radius: var(--radius-sm);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
 }
 
 .table-wrapper {
@@ -554,8 +554,8 @@ body {
 
 .history-table th,
 .history-table td {
-    padding: 5px 8px;
-    font-size: 11px;
+    padding: 3px 6px;
+    font-size: 10px;
     text-align: left;
 }
 
@@ -579,14 +579,14 @@ body {
 .help-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    gap: 6px;
 }
 
 .help-box {
     background: rgba(255, 255, 255, 0.01);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    padding: 10px;
+    padding: 6px;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -594,13 +594,13 @@ body {
 }
 
 .help-label {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-secondary);
     font-weight: 600;
 }
 
 .help-value {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--color-accent-light);
 }

@@ -370,15 +370,15 @@ function handleScannedText(text) {
     const scanBox = document.getElementById("scan-result-box");
     const scanMsg = document.getElementById("scan-result-msg");
 
-    // 正則匹配開頭為 2 位大寫英文字母 + 8 位數字 (例如: AJ19531471)
-    const invoiceRegex = /^([A-Z]{2})(\d{8})/;
+    // 更寬鬆的正則匹配：尋找任意處出現的 2 位英文字母 + 8 位數字 (不限大小寫，不限開頭)
+    const invoiceRegex = /([A-Za-z]{2})(\d{8})/;
     const match = text.match(invoiceRegex);
 
     if (match) {
-        const fullInvoiceNumber = match[1] + match[2];
+        const fullInvoiceNumber = match[1].toUpperCase() + match[2];
         const invoiceDigits = match[2]; // 8位數字部分
         
-        // 手機震動反饋 (200毫秒)
+        // 手機震動反饋
         if (navigator.vibrate) {
             navigator.vibrate(200);
         }
@@ -387,13 +387,14 @@ function handleScannedText(text) {
         stopScanner();
 
         scanBox.className = "rapid-hint-box match";
-        scanMsg.innerHTML = `<span style="color: var(--color-green); font-weight:700;">✅ 成功掃入發票：${fullInvoiceNumber}</span>`;
+        scanMsg.innerHTML = `<span style="color: var(--color-green); font-weight:700;">✅ 成功對獎發票：${fullInvoiceNumber}</span>`;
 
         // 執行完全對獎
         checkFullNumber(invoiceDigits, fullInvoiceNumber);
     } else {
-        // 這可能不是發票 QR Code，維持掃描狀態但提示使用者
-        scanMsg.innerHTML = `<span style="color: #fbbf24;"><i class="fa-solid fa-triangle-exclamation"></i> 偵測到條碼，但格式不符（請掃描發票左側的 QR Code）</span>`;
+        // 提示使用者掃描到的文字內容，方便除錯
+        const previewText = text.length > 25 ? text.substring(0, 22) + "..." : text;
+        scanMsg.innerHTML = `<span style="color: #fbbf24;"><i class="fa-solid fa-triangle-exclamation"></i> 格式不符。掃描到：「${previewText}」<br>(請對準發票左側的 QR Code)</span>`;
     }
 }
 
