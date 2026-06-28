@@ -336,7 +336,26 @@ function startScanner() {
     ).then(() => {
         btnStart.style.display = "none";
         btnStop.style.display = "inline-flex";
-        scanMsg.innerHTML = `<span style="color: var(--color-accent);"><i class="fa-solid fa-spinner fa-spin"></i> 鏡頭對焦中...請掃描左側 QR Code</span>`;
+        scanMsg.innerHTML = `<span style="color: var(--color-accent); font-size: 11px;"><i class="fa-solid fa-spinner fa-spin"></i> 鏡頭對焦中，請保持 10-15cm 距離。<br><small style="color: var(--text-hint); font-size: 10px;">(若畫面太暗已嘗試自動啟用閃光燈)</small></span>`;
+        
+        // 嘗試自動開啟閃光燈 / 手電筒照明
+        setTimeout(() => {
+            try {
+                if (html5Qrcode && html5Qrcode.isScanning) {
+                    const track = html5Qrcode.getActiveTrack();
+                    if (track) {
+                        const capabilities = track.getCapabilities();
+                        if (capabilities.torch) {
+                            track.applyConstraints({
+                                advanced: [{ torch: true }]
+                            });
+                        }
+                    }
+                }
+            } catch (torchErr) {
+                console.log("Flashlight constraint not supported:", torchErr);
+            }
+        }, 1000);
     }).catch(err => {
         console.error("相機啟動失敗：", err);
         scanMsg.innerHTML = `<span style="color: var(--color-red);"><i class="fa-solid fa-triangle-exclamation"></i> 相機開啟失敗，請確認是否給予相機權限</span>`;
