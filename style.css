@@ -644,10 +644,11 @@ body {
 .scanner-wrapper {
     width: 100%;
     max-width: 200px;
+    height: 100px; /* 限制高度為 100px，使鏡頭區高度變窄 */
     margin: 0 auto 6px;
     border-radius: var(--radius-md);
     border: 2px solid var(--border-color);
-    overflow: hidden;
+    overflow: hidden; /* 切割多餘的鏡頭畫面 */
     background: rgba(0,0,0,0.4);
     position: relative;
     box-shadow: var(--shadow-sm);
@@ -658,13 +659,15 @@ body {
     border: none !important;
     width: 100% !important;
     max-width: 200px !important;
+    height: 100px !important; /* 限制高度為 100px */
     margin: 0 auto !important;
+    overflow: hidden;
 }
 
 #reader__video {
     width: 100% !important;
-    max-height: 150px !important;
-    object-fit: cover !important;
+    height: 100% !important; /* 填滿容器 */
+    object-fit: cover !important; /* 裁切置中鏡頭 */
     border-radius: var(--radius-md) !important;
 }
 
