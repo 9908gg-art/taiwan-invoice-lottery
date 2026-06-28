@@ -1,0 +1,30 @@
+name: Auto Scrape Winning Numbers
+
+on:
+  schedule:
+    - cron: '0 4 * * *' # 每天台灣時間中午 12 點執行一次
+  workflow_dispatch: # 允許手動觸發
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run crawler
+        run: python cron_crawler.py
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add data/winning_numbers.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto update winning numbers" && git push)
