@@ -11,6 +11,8 @@
     <!-- HTML5 QR Code Scanner Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
     <link rel="stylesheet" href="style.css?v=1.0.5">
+    <!-- Busuanzi View Counter -->
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 </head>
 <body>
     <!-- Confetti Canvas -->
@@ -201,7 +203,14 @@
             <p>© 2026 TW Invoice Checker. 專為台灣人設計的極速智慧掃描與手動對獎看板。</p>
             <p class="github-badge">資料自動定時爬取託管於 GitHub Pages | 100% 離線可用且無廣告</p>
         </div>
-    </footer>
+    
+            <p class="view-counter-box" id="busuanzi_container_site_pv" style="display:none; font-size: 0.85rem; color: var(--text-muted); margin-top: 5px; margin-bottom: 10px; text-align: center;">
+                <i class="fa-solid fa-eye" style="margin-right: 5px; color: var(--color-blue, #38bdf8);"></i> 
+                本站總瀏覽量：<span id="busuanzi_value_site_pv" style="font-weight: 600; color: var(--color-blue, #38bdf8);">...</span> 次 | 
+                <i class="fa-solid fa-user" style="margin-right: 5px; color: var(--color-green, #34d399);"></i> 
+                訪客數：<span id="busuanzi_value_site_uv" style="font-weight: 600; color: var(--color-green, #34d399);">...</span> 人
+            </p>
+</footer>
 
     <script src="app.js?v=1.0.5"></script>
 </body>
